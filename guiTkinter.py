@@ -95,7 +95,7 @@ class mainWindow(tk.Tk):
         """Open file dialog to select .ino file."""
         filePath = filedialog.askopenfilename(
             title="Select Arduino .ino File",
-            filetypes=[("Arduino Files", "*.ino")]
+            filetypes=[("Arduino Files", "*.ino"), ("CPP Files","*.cpp")]
         )
         if filePath:
             self.selectedFirmwarePath = filePath
