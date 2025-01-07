@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, filedialog, ttk #module needed for combobox
 import serial.tools.list_ports
-from uploader.avrUploader import upload_firmware_avr
+from uploader.avrUploader import uploadFirmwareAvr
 
 class mainWindow(tk.Tk):
 
@@ -129,10 +129,9 @@ class mainWindow(tk.Tk):
 
                 self.selectPort.grid(row=0, column=2)
         
-        if self.boardMenu.get() == self.boards[1]:
+        if self.boardMenu.get() == self.boards[1] or self.boardMenu.get() == self.boards[2]:
 
-            upload_firmware_avr(self.selectedFirmwarePath, self.selectPort.get(), self.boardMenu.get())
-
+            uploadFirmwareAvr(self.selectedFirmwarePath, self.selectPort.get(), self.boardMenu.get())
 
 def main():
 
