@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, ttk #module needed for combobox
+from tkinter import messagebox, filedialog, ttk #module needed for combobox
 import serial.tools.list_ports
 from uploader.avrUploader import upload_firmware_avr
 
@@ -17,6 +17,7 @@ class mainWindow(tk.Tk):
 
         self.boards = ["Select board", "Cortu gen1", "Cortu gen2", "Cortu gen3"]
         self.ports = ["Select Port"]
+        self.selectedFirmwarePath = ""
 
 
         #Create list for board menu
@@ -24,26 +25,48 @@ class mainWindow(tk.Tk):
         self.boardMenu = ttk.Combobox(self, values=self.boards)
         self.boardMenu.current(0)
         self.boardMenu.grid(row=0, column=0)
-        self.boardMenu.bind("<<ComboboxSelected>>", self.on_board_selected)
+        self.boardMenu.bind("<<ComboboxSelected>>", self.boardSelected)
 
         #Combobox for selecting ports (initially hidden)
 
         self.selectPort = ttk.Combobox(self, values=self.ports)
         self.selectPort.grid(row=0, column=1)
         self.selectPort.grid_forget()
+        self.selectPort.bind("<<ComboboxSelected>>", self.portSelected)
+
+        # Label for displaying selected .ino file
+        self.firmwareLabel = tk.Label(self, text="No file selected", width=40, anchor="w")
+        self.firmwareLabel.grid(row=7, column=0, columnspan=2)
+
+        # Button to select firmware (initially hidden)
+        self.selectFirmware = tk.Button(self, text="Select .ino File", command=self.selectFile)
+        self.selectFirmware.grid(row=7, column=4)
+        self.selectFirmware.grid_forget()
 
         #Upload button
 
         button = tk.Button(self, text="Upload", command=self.upload)
         button.grid(row=1, column=1)
 
-    def on_board_selected(self, event):
+    def boardSelected(self, event):
 
         """Called when a board is selected from the dropdown."""
         if self.boardMenu.get() != self.boards[0]:
 
             self.selectPort.grid_forget()
             self.update_ports()
+
+        else:
+
+            self.selectPort.grid_forget()
+
+    def portSelected(self, event):
+
+        """Called when a board is selected from the dropdown."""
+        if self.selectPort.get() != self.ports[0]:
+            print ("hereeeeeeeeeeeee")
+            self.selectFirmware.grid(row=7, column=4)
+            # self.update_ports()
 
         else:
 
@@ -68,6 +91,15 @@ class mainWindow(tk.Tk):
         self.selectPort.current(0)
         self.selectPort.grid(row=0, column=1)
        
+    def selectFile(self):
+        """Open file dialog to select .ino file."""
+        filePath = filedialog.askopenfilename(
+            title="Select Arduino .ino File",
+            filetypes=[("Arduino Files", "*.ino")]
+        )
+        if filePath:
+            self.selectedFirmwarePath = filePath
+            self.firmwareLabel.config(text=f"Selected file: {self.selectedFirmwarePath}")
 
     def upload(self):
 
@@ -99,7 +131,7 @@ class mainWindow(tk.Tk):
         
         if self.boardMenu.get() == self.boards[1]:
 
-            upload_firmware_avr("arduino/blink/blink.ino", self.selectPort.get(), "m328p")
+            upload_firmware_avr(self.selectedFirmwarePath, self.selectPort.get(), self.boardMenu.get())
 
 
 def main():
