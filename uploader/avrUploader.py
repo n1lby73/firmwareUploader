@@ -35,7 +35,7 @@ def upload_firmware_avr(firmware_file, port, board_variant):
         # Upload the firmware
         print(f"Uploading firmware to {port}...")
         subprocess.run(avrd_upload, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        
+        messagebox.showinfo("Firmware upload", "Successfully uploaded")
         print("Firmware uploaded successfully.")
 
     except subprocess.CalledProcessError as e:
