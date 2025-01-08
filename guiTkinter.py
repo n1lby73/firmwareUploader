@@ -1,5 +1,148 @@
+# import tkinter as tk
+# from tkinter import messagebox, filedialog, ttk #module needed for combobox
+# import serial.tools.list_ports
+# from uploader.avrUploader import uploadFirmwareAvr
+
+# class mainWindow(tk.Tk):
+
+#     def __init__(self):
+
+#         super().__init__()
+        
+#         #Initialize the window
+
+#         self.title("Firmware Uploader")
+#         # self.iconbitmap('/images/corsFavicon.ico')
+#         self.geometry("500x500")
+
+#         self.boards = ["Select board", "Cortu gen1", "Cortu gen2", "Cortu gen3"]
+#         self.ports = ["Select Port"]
+#         self.selectedFirmwarePath = ""
+
+
+#         #Create list for board menu
+
+#         self.boardMenu = ttk.Combobox(self, values=self.boards)
+#         self.boardMenu.current(0)
+#         self.boardMenu.grid(row=0, column=0)
+#         self.boardMenu.bind("<<ComboboxSelected>>", self.boardSelected)
+
+#         #Combobox for selecting ports (initially hidden)
+
+#         self.selectPort = ttk.Combobox(self, values=self.ports)
+#         self.selectPort.grid(row=0, column=1)
+#         self.selectPort.grid_forget()
+#         self.selectPort.bind("<<ComboboxSelected>>", self.portSelected)
+
+#         # Label for displaying selected .ino file
+#         self.firmwareLabel = tk.Label(self, text="No file selected", width=40, anchor="w")
+#         self.firmwareLabel.grid(row=7, column=0, columnspan=2)
+
+#         # Button to select firmware (initially hidden)
+#         self.selectFirmware = tk.Button(self, text="Select .ino File", command=self.selectFile)
+#         self.selectFirmware.grid(row=7, column=4)
+#         self.selectFirmware.grid_forget()
+
+#         #Upload button
+
+#         button = tk.Button(self, text="Upload", command=self.upload)
+#         button.grid(row=1, column=1)
+
+#     def boardSelected(self, event):
+
+#         """Called when a board is selected from the dropdown."""
+#         if self.boardMenu.get() != self.boards[0]:
+
+#             self.selectPort.grid_forget()
+#             self.update_ports()
+
+#         else:
+
+#             self.selectPort.grid_forget()
+
+#     def portSelected(self, event):
+
+#         """Called when a board is selected from the dropdown."""
+#         if self.selectPort.get() != self.ports[0]:
+#             print ("hereeeeeeeeeeeee")
+#             self.selectFirmware.grid(row=7, column=4)
+#             # self.update_ports()
+
+#         else:
+
+#             self.selectPort.grid_forget()
+
+#     def update_ports(self):
+
+#         """Fetch available serial ports and update the combobox."""
+#         # This runs asynchronously, without blocking the main event loop
+#         self.after(100, self.fetch_ports)
+
+#     def fetch_ports(self):
+
+#         """Fetch available serial ports and update the combobox."""
+#         ports = serial.tools.list_ports.comports()
+
+#         for port in ports:
+#             self.ports.append(port.device)
+
+#         # Update the selectPort combobox with the new ports
+#         self.selectPort.config(values=self.ports)
+#         self.selectPort.current(0)
+#         self.selectPort.grid(row=0, column=1)
+       
+#     def selectFile(self):
+#         """Open file dialog to select .ino file."""
+#         filePath = filedialog.askopenfilename(
+#             title="Select Arduino .ino File",
+#             filetypes=[("Arduino Files", "*.ino"), ("CPP Files","*.cpp")]
+#         )
+#         if filePath:
+#             self.selectedFirmwarePath = filePath
+#             self.firmwareLabel.config(text=f"Selected file: {self.selectedFirmwarePath}")
+
+#     def upload(self):
+
+#         #Validate selected board
+
+#         if self.boardMenu.get() not in self.boards:
+
+#             messagebox.showerror("Board Selector", "Unidentified board selected")
+
+#         if self.boardMenu.get() == self.boards[0]:
+
+#             messagebox.showerror("Board Selector", "No board selected")
+
+#         if self.selectPort.get() not in self.ports:
+
+#             messagebox.showerror("Port Selector", "Unidentified port selected")
+
+#         if self.selectPort.get() == self.ports[0]:
+
+#             messagebox.showerror("Port Selector", "No port selected")
+
+#         # After validating board, show the serial port combobox if not already shown
+
+#         if self.boardMenu.get() != self.boards[0]:
+
+#             if self.selectPort.winfo_ismapped() == False:
+
+#                 self.selectPort.grid(row=0, column=2)
+        
+#         if self.boardMenu.get() == self.boards[1] or self.boardMenu.get() == self.boards[2]:
+
+#             uploadFirmwareAvr(self.selectedFirmwarePath, self.selectPort.get(), self.boardMenu.get())
+
+# def main():
+
+#     window = mainWindow()
+#     window.mainloop()
+
+# if __name__ == "__main__":
+#     main()
+
 import tkinter as tk
-from tkinter import messagebox, filedialog, ttk #module needed for combobox
+from tkinter import messagebox, filedialog, ttk  # module needed for combobox
 import serial.tools.list_ports
 from uploader.avrUploader import uploadFirmwareAvr
 
@@ -8,78 +151,69 @@ class mainWindow(tk.Tk):
     def __init__(self):
 
         super().__init__()
-        
-        #Initialize the window
 
+        # Initialize the window
         self.title("Firmware Uploader")
-        # self.iconbitmap('/images/corsFavicon.ico')
-        self.geometry("500x500")
+        self.geometry("600x400")  # Increased size for more space
+        # self.resizable(False, False)  # Make window non-resizable for consistency
 
         self.boards = ["Select board", "Cortu gen1", "Cortu gen2", "Cortu gen3"]
         self.ports = ["Select Port"]
         self.selectedFirmwarePath = ""
 
-
-        #Create list for board menu
-
-        self.boardMenu = ttk.Combobox(self, values=self.boards)
+        # Create list for board menu
+        self.boardMenu = ttk.Combobox(self, values=self.boards, width=20, state="readonly")
         self.boardMenu.current(0)
-        self.boardMenu.grid(row=0, column=0)
+        self.boardMenu.grid(row=0, column=1, padx=20, pady=10, sticky="w")
         self.boardMenu.bind("<<ComboboxSelected>>", self.boardSelected)
 
-        #Combobox for selecting ports (initially hidden)
+        # Label for Board selection
+        self.boardLabel = tk.Label(self, text="Select Board:", width=20, anchor="w")
+        self.boardLabel.grid(row=0, column=0, padx=20, pady=10, sticky="e")
 
-        self.selectPort = ttk.Combobox(self, values=self.ports)
-        self.selectPort.grid(row=0, column=1)
+        # Combobox for selecting ports (initially hidden)
+        self.selectPort = ttk.Combobox(self, values=self.ports, width=20, state="readonly")
+        self.selectPort.grid(row=1, column=1, padx=20, pady=10, sticky="w")
         self.selectPort.grid_forget()
         self.selectPort.bind("<<ComboboxSelected>>", self.portSelected)
 
-        # Label for displaying selected .ino file
-        self.firmwareLabel = tk.Label(self, text="No file selected", width=40, anchor="w")
-        self.firmwareLabel.grid(row=7, column=0, columnspan=2)
+        # Label for Port selection
+        self.portLabel = tk.Label(self, text="Select Port:", width=20, anchor="w")
+        self.portLabel.grid(row=1, column=0, padx=20, pady=10, sticky="e")
+
+        # Label for displaying selected firmware file
+        self.firmwareLabel = tk.Label(self, text="No File Selected", width=40, anchor="w")
+        self.firmwareLabel.grid(row=2, column=0, columnspan=2, padx=20, pady=10, sticky="w")
 
         # Button to select firmware (initially hidden)
-        self.selectFirmware = tk.Button(self, text="Select .ino File", command=self.selectFile)
-        self.selectFirmware.grid(row=7, column=4)
+        self.selectFirmware = tk.Button(self, text="Select Firmware File", command=self.selectFile, width=20)
+        self.selectFirmware.grid(row=2, column=2, padx=20, pady=10, sticky="w")
         self.selectFirmware.grid_forget()
 
-        #Upload button
-
-        button = tk.Button(self, text="Upload", command=self.upload)
-        button.grid(row=1, column=1)
+        # Upload button
+        self.uploadButton = tk.Button(self, text="Upload", command=self.upload, width=20)
+        self.uploadButton.grid(row=3, column=1, padx=20, pady=20)
 
     def boardSelected(self, event):
-
         """Called when a board is selected from the dropdown."""
         if self.boardMenu.get() != self.boards[0]:
-
             self.selectPort.grid_forget()
             self.update_ports()
-
         else:
-
             self.selectPort.grid_forget()
 
     def portSelected(self, event):
-
-        """Called when a board is selected from the dropdown."""
+        """Called when a port is selected from the dropdown."""
         if self.selectPort.get() != self.ports[0]:
-            print ("hereeeeeeeeeeeee")
-            self.selectFirmware.grid(row=7, column=4)
-            # self.update_ports()
-
+            self.selectFirmware.grid(row=2, column=2, padx=20, pady=10, sticky="w")
         else:
-
-            self.selectPort.grid_forget()
+            self.selectFirmware.grid_forget()
 
     def update_ports(self):
-
         """Fetch available serial ports and update the combobox."""
-        # This runs asynchronously, without blocking the main event loop
         self.after(100, self.fetch_ports)
 
     def fetch_ports(self):
-
         """Fetch available serial ports and update the combobox."""
         ports = serial.tools.list_ports.comports()
 
@@ -89,52 +223,34 @@ class mainWindow(tk.Tk):
         # Update the selectPort combobox with the new ports
         self.selectPort.config(values=self.ports)
         self.selectPort.current(0)
-        self.selectPort.grid(row=0, column=1)
-       
+        self.selectPort.grid(row=1, column=1, padx=20, pady=10, sticky="w")
+
     def selectFile(self):
         """Open file dialog to select .ino file."""
         filePath = filedialog.askopenfilename(
             title="Select Arduino .ino File",
-            filetypes=[("Arduino Files", "*.ino"), ("CPP Files","*.cpp")]
+            filetypes=[("Arduino Files", "*.ino"), ("CPP Files", "*.cpp")]
         )
         if filePath:
             self.selectedFirmwarePath = filePath
             self.firmwareLabel.config(text=f"Selected file: {self.selectedFirmwarePath}")
 
     def upload(self):
-
-        #Validate selected board
-
-        if self.boardMenu.get() not in self.boards:
-
-            messagebox.showerror("Board Selector", "Unidentified board selected")
-
+        """Upload firmware to the selected board and port."""
+        # Validate selected board
         if self.boardMenu.get() == self.boards[0]:
-
             messagebox.showerror("Board Selector", "No board selected")
-
-        if self.selectPort.get() not in self.ports:
-
-            messagebox.showerror("Port Selector", "Unidentified port selected")
+            return
 
         if self.selectPort.get() == self.ports[0]:
-
             messagebox.showerror("Port Selector", "No port selected")
+            return
 
-        # After validating board, show the serial port combobox if not already shown
-
-        if self.boardMenu.get() != self.boards[0]:
-
-            if self.selectPort.winfo_ismapped() == False:
-
-                self.selectPort.grid(row=0, column=2)
-        
+        # Perform the upload action
         if self.boardMenu.get() == self.boards[1] or self.boardMenu.get() == self.boards[2]:
-
             uploadFirmwareAvr(self.selectedFirmwarePath, self.selectPort.get(), self.boardMenu.get())
 
 def main():
-
     window = mainWindow()
     window.mainloop()
 
