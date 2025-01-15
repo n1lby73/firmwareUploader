@@ -26,6 +26,7 @@ class mainWindow(tk.Tk):
         self.boards = ["Select board", "Cortu gen1", "Cortu gen2", "Cortu gen3"]
         self.ports = ["Select Port"]
         self.selectedFirmwarePath = ""
+        self.connectedBoards = {}
 
         # Create list for board menu
         self.boardMenu = ttk.Combobox(self, values=self.boards, width=20, state="readonly")
@@ -93,6 +94,18 @@ class mainWindow(tk.Tk):
             port = columns[0]
 
             self.ports.append(port)
+            
+            if "Uno" in columns:
+
+                self.connectedBoards[port] = self.boards[1]
+                
+            elif "Mega" in columns:
+
+                self.connectedBoards[port] = self.boards[2]
+
+            else:
+
+                pass
 
         # Update the selectPort combobox with the new ports
         self.selectPort.config(values=self.ports)
@@ -111,51 +124,38 @@ class mainWindow(tk.Tk):
 
     def boardInfo(self):
         """Retrieve board info"""
-        # Validate that port has been selected
-        # if self.boardMenu.get() == self.boards[0]:
-        #     messagebox.showerror("Board Info", "Please Select board to retrieve board info")
-        #     return
 
         if self.selectPort.get() == self.ports[0]:
             messagebox.showerror("Board Info", "Please select port to retrieve board info")
             return
 
         #Retrieve board info
-        boardType = ([x.split() for x in self.retrievedPortData])
+        print(self.connectedBoards)
+        if self.selectPort.get() in self.connectedBoards:
+            
+            messagebox.showinfo("Board Info", f"Connected board is {self.connectedBoards[self.selectPort.get()]}")
+            print (f"board connected to port {self.selectPort.get()} is {self.connectedBoards[self.selectPort.get()]}")
 
-        for connectedBoards in boardType:
+        # boardType = ([x.split() for x in self.retrievedPortData])
+        # print (boardType)
+        # for connectedBoards in boardType:
 
-            if "Uno" in connectedBoards:
+        #     if "Uno" in connectedBoards:
 
-                identifiedBoard = self.boards[1]
-                break
+        #         identifiedBoard = self.boards[1]
+        #         break
 
-            elif "Mega" in connectedBoards:
+        #     elif "Mega" in connectedBoards:
 
-                identifiedBoard = self.boards[2]
-                break
+        #         identifiedBoard = self.boards[2]
+        #         break
 
-            else:
+        #     else:
 
-                identifiedBoard = "unindentified"
+        #         identifiedBoard = "unindentified"
         
-        messagebox.showinfo("Board Info", f"Connected board is {identifiedBoard}")
-        
-        # if self.boardMenu.get() == self.boards[1]:
-
-        #     result = subprocess.run(['arduino-cli', 'board', 'details', '-b', 'arduino:avr:uno'], 
-        #                     capture_output=True, text=True)
-        
-        # # Print the output of the command
-        # if result.returncode == 0:
-        #     print("Board details retrieved successfully:")
-        #     print(result.stdout)
-        # else:
-        #     print("Error retrieving board details:")
-        #     print(result.stderr)
-
-#  or self.boardMenu.get() == self.boards[2]:
-#             uploadFirmwareAvr(self.selectedFirmwarePath, self.selectPort.get(), self.boardMenu.get())
+        # messagebox.showinfo("Board Info", f"Connected board is {identifiedBoard}")
+        messagebox.showinfo("Board Info", f"Connected board is {self.connectedBoards[self.selectPort.get()]}")
 
     def upload(self):
         """Upload firmware to the selected board and port."""
