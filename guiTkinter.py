@@ -81,10 +81,17 @@ class mainWindow(tk.Tk):
 
     def fetch_ports(self):
         """Fetch available serial ports and update the combobox."""
-        ports = serial.tools.list_ports.comports()
+        retrievePort = subprocess.run(['arduino-cli', 'board', 'list'], capture_output=True, text=True)
 
-        for port in ports:
-            self.ports.append(port.device)
+        retrievedPortData = retrievePort.stdout.strip().splitlines()[1::]
+
+        for line in retrievedPortData:
+
+            columns = line.split()
+            port = columns[0]
+
+            self.ports.append(port)
+
 
         # Update the selectPort combobox with the new ports
         self.selectPort.config(values=self.ports)
