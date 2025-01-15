@@ -85,9 +85,9 @@ class mainWindow(tk.Tk):
         """Fetch available serial ports and update the combobox."""
         retrievePort = subprocess.run(['arduino-cli', 'board', 'list'], capture_output=True, text=True)
 
-        retrievedPortData = retrievePort.stdout.strip().splitlines()[1::]
+        self.retrievedPortData = retrievePort.stdout.strip().splitlines()[1::]
 
-        for line in retrievedPortData:
+        for line in self.retrievedPortData:
 
             columns = line.split()
             port = columns[0]
@@ -111,27 +111,48 @@ class mainWindow(tk.Tk):
 
     def boardInfo(self):
         """Retrieve board info"""
-        # Validate that port and board has been selected
-        if self.boardMenu.get() == self.boards[0]:
-            messagebox.showerror("Board Info", "Please Select board to retrieve board info")
-            return
+        # Validate that port has been selected
+        # if self.boardMenu.get() == self.boards[0]:
+        #     messagebox.showerror("Board Info", "Please Select board to retrieve board info")
+        #     return
 
         if self.selectPort.get() == self.ports[0]:
             messagebox.showerror("Board Info", "Please select port to retrieve board info")
             return
 
         #Retrieve board info
-        if self.boardMenu.get() == self.boards[1]:
-            result = subprocess.run(['arduino-cli', 'board', 'details', '-b', 'arduino:avr:uno'], 
-                            capture_output=True, text=True)
+        boardType = ([x.split() for x in self.retrievedPortData])
+
+        for connectedBoards in boardType:
+
+            if "Uno" in connectedBoards:
+
+                identifiedBoard = self.boards[1]
+                break
+
+            elif "Mega" in connectedBoards:
+
+                identifiedBoard = self.boards[2]
+                break
+
+            else:
+
+                identifiedBoard = "unindentified"
         
-        # Print the output of the command
-        if result.returncode == 0:
-            print("Board details retrieved successfully:")
-            print(result.stdout)
-        else:
-            print("Error retrieving board details:")
-            print(result.stderr)
+        messagebox.showinfo("Board Info", f"Connected board is {identifiedBoard}")
+        
+        # if self.boardMenu.get() == self.boards[1]:
+
+        #     result = subprocess.run(['arduino-cli', 'board', 'details', '-b', 'arduino:avr:uno'], 
+        #                     capture_output=True, text=True)
+        
+        # # Print the output of the command
+        # if result.returncode == 0:
+        #     print("Board details retrieved successfully:")
+        #     print(result.stdout)
+        # else:
+        #     print("Error retrieving board details:")
+        #     print(result.stderr)
 
 #  or self.boardMenu.get() == self.boards[2]:
 #             uploadFirmwareAvr(self.selectedFirmwarePath, self.selectPort.get(), self.boardMenu.get())
