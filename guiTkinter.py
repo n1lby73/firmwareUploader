@@ -77,6 +77,8 @@ class mainWindow(tk.Tk):
 
     def update_ports(self):
         """Fetch available serial ports and update the combobox."""
+        #clear the port list
+        self.ports = ["Select Port"]
         self.after(100, self.fetch_ports)
 
     def fetch_ports(self):
@@ -91,7 +93,6 @@ class mainWindow(tk.Tk):
             port = columns[0]
 
             self.ports.append(port)
-
 
         # Update the selectPort combobox with the new ports
         self.selectPort.config(values=self.ports)
