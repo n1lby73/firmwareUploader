@@ -13,13 +13,13 @@ setenv VIRTUAL_ENV /home/n1lby73/corskinter/corsenv
 
 set _OLD_VIRTUAL_PATH="$PATH"
 setenv PATH "$VIRTUAL_ENV/"bin":$PATH"
+setenv VIRTUAL_ENV_PROMPT corsenv
 
 
 set _OLD_VIRTUAL_PROMPT="$prompt"
 
 if (! "$?VIRTUAL_ENV_DISABLE_PROMPT") then
-    set prompt = '(corsenv) '"$prompt"
-    setenv VIRTUAL_ENV_PROMPT '(corsenv) '
+    set prompt = "("corsenv") $prompt:q"
 endif
 
 alias pydoc python -m pydoc

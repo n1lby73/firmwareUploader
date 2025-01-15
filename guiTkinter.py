@@ -1,5 +1,6 @@
+import subprocess
 import tkinter as tk
-from tkinter import messagebox, filedialog, ttk  # module needed for combobox
+from tkinter import Menu, messagebox, filedialog, ttk  # module needed for combobox
 import serial.tools.list_ports
 from uploader.avrUploader import uploadFirmwareAvr
 
@@ -13,6 +14,14 @@ class mainWindow(tk.Tk):
         self.title("Firmware Uploader")
         self.geometry("600x400")  # Increased size for more space
         # self.resizable(False, False)  # Make window non-resizable for consistency
+
+        self.menuBar = tk.Menu(self)
+        self.config(menu=self.menuBar)
+
+        toolsMenu = tk.Menu(self.menuBar)
+        self.menuBar.add_cascade(label="Tools", menu=toolsMenu)
+        toolsMenu.add_command(label="Get Board Info", command=self.boardInfo)
+        
 
         self.boards = ["Select board", "Cortu gen1", "Cortu gen2", "Cortu gen3"]
         self.ports = ["Select Port"]
@@ -91,6 +100,33 @@ class mainWindow(tk.Tk):
         if filePath:
             self.selectedFirmwarePath = filePath
             self.firmwareLabel.config(text=f"Selected file: {self.selectedFirmwarePath}")
+
+    def boardInfo(self):
+        """Retrieve board info"""
+        # Validate that port and board has been selected
+        if self.boardMenu.get() == self.boards[0]:
+            messagebox.showerror("Board Info", "Please Select board to retrieve board info")
+            return
+
+        if self.selectPort.get() == self.ports[0]:
+            messagebox.showerror("Board Info", "Please select port to retrieve board info")
+            return
+
+        #Retrieve board info
+        if self.boardMenu.get() == self.boards[1]:
+            result = subprocess.run(['arduino-cli', 'board', 'details', '-b', 'arduino:avr:uno'], 
+                            capture_output=True, text=True)
+        
+        # Print the output of the command
+        if result.returncode == 0:
+            print("Board details retrieved successfully:")
+            print(result.stdout)
+        else:
+            print("Error retrieving board details:")
+            print(result.stderr)
+
+#  or self.boardMenu.get() == self.boards[2]:
+#             uploadFirmwareAvr(self.selectedFirmwarePath, self.selectPort.get(), self.boardMenu.get())
 
     def upload(self):
         """Upload firmware to the selected board and port."""
