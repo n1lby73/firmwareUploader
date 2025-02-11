@@ -1,5 +1,6 @@
 import subprocess
 import tkinter as tk
+import serial, threading
 from tkinter import Menu, messagebox, filedialog, ttk  # module needed for combobox
 import serial.tools.list_ports
 from uploader.avrUploader import uploadFirmwareAvr
@@ -21,7 +22,7 @@ class mainWindow(tk.Tk):
         toolsMenu = tk.Menu(self.menuBar)
         self.menuBar.add_cascade(label="Tools", menu=toolsMenu)
         toolsMenu.add_command(label="Get Board Info", command=self.boardInfo)
-        
+        toolsMenu.add_command(label="Open Serial Monitor", command=self.openSerialMonitor)
 
         self.boards = ["Select board", "Cortu gen1", "Cortu gen2", "Cortu gen3"]
         self.ports = ["Select Port"]
@@ -174,6 +175,121 @@ class mainWindow(tk.Tk):
 
         if self.boardMenu.get() == self.boards[3]:
             uploadFirmwareAvr(self.selectedFirmwarePath, self.selectPort.get(), self.boardMenu.get())
+
+    # def openSerialMonitor(self):
+    #     """Open the Serial Monitor Window."""
+    #     if self.selectPort.get() == self.ports[0]:
+    #         messagebox.showerror("Serial Monitor", "Please select a port first")
+    #         return
+
+    #     # Create a new window for the serial monitor
+    #     serialMonitorWindow = tk.Toplevel(self)
+    #     serialMonitorWindow.title("Serial Monitor")
+    #     serialMonitorWindow.geometry("300x300")
+
+    #     # Dropdown menu for baud rate selection
+    #     baudRates = ["9600", "19200", "38400", "57600", "115200"]
+    #     baudRateVar = tk.StringVar(value="9600")  # Default to 9600
+
+    #     baudRateLabel = tk.Label(serialMonitorWindow, text="Baud Rate:")
+    #     baudRateLabel.pack(padx=20, pady=10)
+
+    #     baudRateDropdown = ttk.Combobox(serialMonitorWindow, values=baudRates, textvariable=baudRateVar, state="readonly", width=10)
+    #     baudRateDropdown.pack(padx=20, pady=10)
+
+    #     # Textbox to show serial output
+    #     serialOutput = tk.Text(serialMonitorWindow, wrap=tk.WORD, state=tk.DISABLED) # 
+    #     serialOutput.pack(expand=True, fill=tk.BOTH)
+
+    #     # Open the serial connection in a separate thread
+    #     def readSerialData():
+    #         try:
+                
+    #             with serial.Serial(self.selectPort.get(), baudRateVar.get(), timeout=1) as ser:
+
+    #                 while True:
+
+    #                     line = ser.readline()
+
+    #                     if line:
+
+    #                         decoded_line = line.decode('utf-8').strip()
+    #                         serialOutput.config(state=tk.NORMAL)
+    #                         serialOutput.insert(tk.END, decoded_line + '\n')
+    #                         serialOutput.config(state=tk.DISABLED)
+    #                         serialOutput.yview(tk.END)
+
+    #         except Exception as e:
+
+    #             print(f"Error: {e}")
+        
+    #     # Start the serial data reading in a background thread
+    #     serial_thread = threading.Thread(target=readSerialData, daemon=True)
+    #     serial_thread.start()
+
+    def openSerialMonitor(self):
+        """Open the Serial Monitor Window."""
+        if self.selectPort.get() == self.ports[0]:
+            messagebox.showerror("Serial Monitor", "Please select a port first")
+            return
+
+        # Create a new window for the serial monitor
+        serialMonitorWindow = tk.Toplevel(self)
+        serialMonitorWindow.title("Serial Monitor")
+        serialMonitorWindow.geometry("300x300")
+
+        # Dropdown menu for baud rate selection
+        baudRates = ["9600", "19200", "38400", "57600", "115200"]
+        baudRateVar = tk.StringVar(value="9600")  # Default to 9600
+
+        baudRateLabel = tk.Label(serialMonitorWindow, text="Baud Rate:")
+        baudRateLabel.pack(padx=20, pady=10)
+
+        baudRateDropdown = ttk.Combobox(serialMonitorWindow, values=baudRates, textvariable=baudRateVar, state="readonly", width=10)
+        baudRateDropdown.pack(padx=20, pady=10)
+
+        # Textbox to show serial output
+        serialOutput = tk.Text(serialMonitorWindow, wrap=tk.WORD, state=tk.DISABLED) 
+        serialOutput.pack(expand=True, fill=tk.BOTH)
+
+        # Thread flag to control reading state
+        stop_thread = False
+
+        # Function to read serial data with dynamic baud rate
+        def readSerialData():
+            nonlocal stop_thread
+            try:
+                while True:
+                    if stop_thread:
+                        break
+                    
+                    baudRate = int(baudRateVar.get())  # Get the current baud rate
+                    with serial.Serial(self.selectPort.get(), baudRate, timeout=1) as ser:
+                        while not stop_thread:
+                            line = ser.readline()
+                            if line:
+                                decoded_line = line.decode('utf-8').strip()
+                                serialOutput.config(state=tk.NORMAL)
+                                serialOutput.insert(tk.END, decoded_line + '\n')
+                                serialOutput.config(state=tk.DISABLED)
+                                serialOutput.yview(tk.END)
+            except Exception as e:
+                print(f"Error: {e}")
+
+        # Start the serial data reading in a background thread
+        serial_thread = threading.Thread(target=readSerialData, daemon=True)
+        serial_thread.start()
+
+        # Update the baud rate and restart reading when the dropdown changes
+        def on_baud_rate_change(event):
+            nonlocal stop_thread
+            stop_thread = True  # Stop the current reading thread
+            serialOutput.delete(1.0, tk.END)  # Clear the output
+            stop_thread = False  # Restart the flag for a new thread
+            serial_thread = threading.Thread(target=readSerialData, daemon=True)
+            serial_thread.start()
+
+        baudRateDropdown.bind("<<ComboboxSelected>>", on_baud_rate_change)
 
 def main():
     window = mainWindow()
