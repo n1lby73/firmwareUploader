@@ -176,56 +176,6 @@ class mainWindow(tk.Tk):
         if self.boardMenu.get() == self.boards[3]:
             uploadFirmwareAvr(self.selectedFirmwarePath, self.selectPort.get(), self.boardMenu.get())
 
-    # def openSerialMonitor(self):
-    #     """Open the Serial Monitor Window."""
-    #     if self.selectPort.get() == self.ports[0]:
-    #         messagebox.showerror("Serial Monitor", "Please select a port first")
-    #         return
-
-    #     # Create a new window for the serial monitor
-    #     serialMonitorWindow = tk.Toplevel(self)
-    #     serialMonitorWindow.title("Serial Monitor")
-    #     serialMonitorWindow.geometry("300x300")
-
-    #     # Dropdown menu for baud rate selection
-    #     baudRates = ["9600", "19200", "38400", "57600", "115200"]
-    #     baudRateVar = tk.StringVar(value="9600")  # Default to 9600
-
-    #     baudRateLabel = tk.Label(serialMonitorWindow, text="Baud Rate:")
-    #     baudRateLabel.pack(padx=20, pady=10)
-
-    #     baudRateDropdown = ttk.Combobox(serialMonitorWindow, values=baudRates, textvariable=baudRateVar, state="readonly", width=10)
-    #     baudRateDropdown.pack(padx=20, pady=10)
-
-    #     # Textbox to show serial output
-    #     serialOutput = tk.Text(serialMonitorWindow, wrap=tk.WORD, state=tk.DISABLED) # 
-    #     serialOutput.pack(expand=True, fill=tk.BOTH)
-
-    #     # Open the serial connection in a separate thread
-    #     def readSerialData():
-    #         try:
-                
-    #             with serial.Serial(self.selectPort.get(), baudRateVar.get(), timeout=1) as ser:
-
-    #                 while True:
-
-    #                     line = ser.readline()
-
-    #                     if line:
-
-    #                         decoded_line = line.decode('utf-8').strip()
-    #                         serialOutput.config(state=tk.NORMAL)
-    #                         serialOutput.insert(tk.END, decoded_line + '\n')
-    #                         serialOutput.config(state=tk.DISABLED)
-    #                         serialOutput.yview(tk.END)
-
-    #         except Exception as e:
-
-    #             print(f"Error: {e}")
-        
-    #     # Start the serial data reading in a background thread
-    #     serial_thread = threading.Thread(target=readSerialData, daemon=True)
-    #     serial_thread.start()
 
     def openSerialMonitor(self):
         """Open the Serial Monitor Window."""
