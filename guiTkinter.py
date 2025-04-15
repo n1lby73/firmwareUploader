@@ -62,10 +62,13 @@ class mainWindow(tk.Tk):
         self.uploadButton = tk.Button(self, text="Upload", command=self.upload, width=20)
         self.uploadButton.grid(row=3, column=1, padx=20, pady=20)
 
+    
+
     def boardSelected(self, event):
         """Called when a board is selected from the dropdown."""
-        if self.boardMenu.get() != self.boards[0]:
-            self.selectPort.grid_forget()
+        self.selected_board = self.boardMenu.get()
+        if self.selected_board != self.boards[0]:
+            # self.selectPort.grid_forget()
             self.update_ports()
         else:
             self.selectPort.grid_forget()
@@ -81,7 +84,10 @@ class mainWindow(tk.Tk):
         """Fetch available serial ports and update the combobox."""
         #clear the port list
         self.ports = ["Select Port"]
+        self.label = tk.Label(self, text="Fetching ports...")
+        self.label.grid(row=1, column=2, padx=20, pady=10, sticky="w")
         self.after(100, self.fetch_ports)
+ 
 
     def fetch_ports(self):
         """Fetch available serial ports and update the combobox."""
@@ -94,24 +100,29 @@ class mainWindow(tk.Tk):
             columns = line.split()
             port = columns[0]
 
-            self.ports.append(port)
+            # self.ports.append(port)
             
             if "Uno" in columns:
-
                 self.connectedBoards[port] = self.boards[1]
                 
             elif "Mega" in columns:
-
                 self.connectedBoards[port] = self.boards[2]
 
             else:
+                self.connectedBoards[port] = self.boards[3]
 
-                pass
+            for port, board in self.connectedBoards.items():
+                if self.selected_board == board:
+                    self.ports.append(port)
+
 
         # Update the selectPort combobox with the new ports
         self.selectPort.config(values=self.ports)
         self.selectPort.current(0)
         self.selectPort.grid(row=1, column=1, padx=20, pady=10, sticky="w")
+
+
+        self.label.grid_forget()
 
     def selectFile(self):
         """Open file dialog to select .ino file."""
